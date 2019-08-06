@@ -30,12 +30,13 @@ def load_all_cards(direc):
         return all_cards
 
 def get_filtered_cards(direc,all_cards):
-    card_filter = lambda c: c['lang']=='en' and not 'token' in c['layout'] and not 'Emblem' in c['type_line'] \
-                        and not c['set_name'] in ['Throne of Eldraine','Arena New Player Experience','Invocations',
+    card_filter = lambda c: c['lang']=='en' and 'paper' in c['games'] and not 'token' in c['layout'] and not 'Emblem' in c['type_line'] \
+						and not ('Conspiracy' in c['type_line'] or 'Plane' in c['type_line'] or 'Phenomenon' in c['type_line'])\
+                        and not c['set_name'] in ['Throne of Eldraine','Arena New Player Experience',
                                                   'Kaladesh Inventions','Zendikar Expeditions','Amonkhet Invocations','Legendary Cube Prize Pack',
                                                   'Mythic Edition','Game Night','Global Series Jiang Yanggu & Mu Yanling'] \
                         and not ('Gift' in c['set_name'] or 'From the Vault:' in c['set_name'] or 'Duel Decks:' in c['set_name']) \
-                        and not c['set_type'] in ['planechase','archenemy','draft_innovation', 'funny', 'memorabilia', 'promo', 'token', 'vanguard'] \
+                        and not c['set_type'] in ['archenemy', 'funny', 'memorabilia', 'promo', 'token', 'vanguard'] \
                         and not c['border_color'] in ['silver','gold'] and not '//' in c['name'] and not 'ante' in c['oracle_text']
     filtered_cards = list(filter(card_filter,all_cards))
     with open(direc + 'scryfall-filtered-cards-pickled.txt','wb') as f:
@@ -69,7 +70,7 @@ def get_words_in_oracle_text(c):
             if word !='']
 
 def get_card_color(c):
-    return ''.join(c['colors'])
+    return ''.join(c['color_identity'])
 
 def get_sorted_unique_counts(l):
     unique_items,item_counts = np.unique(l,return_counts=True)
@@ -169,7 +170,7 @@ def classify_card_colors_kfold(cards,keys,folds=5,colors=None):
     m = color_model(keys,folds,5)
     print(colors)
     if colors!=None:
-        matching_cards,inds = zip(*[(c,i) for i,c in enumerate(cards) if c['colors'] in colors])
+        matching_cards,inds = zip(*[(c,i) for i,c in enumerate(cards) if c['color_identity'] in colors])
     else:
         matching_cards,inds = cards,np.arange(len(cards))
     m.train(matching_cards)        
