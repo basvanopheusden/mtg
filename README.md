@@ -1,3 +1,3 @@
 # mtg
 
-Code for classifying colors of Magic the Gathering cards
+Code for predicting colors of Magic the Gathering cards
