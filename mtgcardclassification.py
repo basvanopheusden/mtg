@@ -23,21 +23,20 @@ def pickle_load(direc,filename):
         return pickle.load(f)
 	
 def load_all_cards(direc):
-    with open(direc + 'scryfall-all-cards.json','rb') as f:
+    with open(direc + 'all-cards-20220418.json','rb') as f:
         all_cards = json.load(f)
         with open(direc + 'scryfall-all-cards-pickled.txt','wb') as f:
             pickle.dump(all_cards,f)
         return all_cards
 
+#and not c['set_name'] in ['Game Day Promos', 'Archenemy Schemes', 'Streets of New Capenna', "Commander Legends: Battle for Baldur's Gate" , 'New Capenna Commander','Arena New Player Experience','Kaladesh Inventions','Zendikar Expeditions','Amonkhet Invocations','Legendary Cube Prize Pack', 'Mythic Edition','Game Night','Global Series Jiang Yanggu & Mu Yanling','Hachette UK'] 
 def get_filtered_cards(direc,all_cards):
-    card_filter = lambda c: c['lang']=='en' and 'paper' in c['games'] and not 'token' in c['layout'] and not 'Emblem' in c['type_line'] \
-						and not ('Conspiracy' in c['type_line'] or 'Plane' in c['type_line'] or 'Phenomenon' in c['type_line'])\
-                        and not c['set_name'] in ['Throne of Eldraine','Arena New Player Experience',
-                                                  'Kaladesh Inventions','Zendikar Expeditions','Amonkhet Invocations','Legendary Cube Prize Pack',
-                                                  'Mythic Edition','Game Night','Global Series Jiang Yanggu & Mu Yanling'] \
-                        and not ('Gift' in c['set_name'] or 'From the Vault:' in c['set_name'] or 'Duel Decks:' in c['set_name']) \
-                        and not c['set_type'] in ['archenemy', 'funny', 'memorabilia', 'promo', 'token', 'vanguard'] \
-                        and not c['border_color'] in ['silver','gold'] and not '//' in c['name'] and not 'ante' in c['oracle_text']
+    card_filter = lambda c: c['lang']=='en' and 'paper' in c['games'] and not 'token' in c['layout'] and not '//' in c['name'] \
+						and not ('Emblem' in c['type_line'] or 'Conspiracy' in c['type_line'] or 'Plane' in c['type_line'] or 'Phenomenon' in c['type_line'] or 'Scheme' in c['type_line'])\
+                        and not c['set_name'] in ['Game Day Promos', 'Archenemy Schemes', 'Streets of New Capenna', "Commander Legends: Battle for Baldur's Gate" , 'New Capenna Commander','Arena New Player Experience','Kaladesh Inventions','Zendikar Expeditions','Amonkhet Invocations','Legendary Cube Prize Pack', 'Mythic Edition','Hachette UK'] \
+                        and not ('From the Vault:' in c['set_name'] or 'Duel Decks:' in c['set_name']) \
+                        and not c['set_type'] in ['funny', 'memorabilia', 'token', 'vanguard'] \
+                        and not c['border_color'] in ['silver','gold'] and not ' ante' in c['oracle_text'] and not c['name'] in ['Puresteel Angel']
     filtered_cards = list(filter(card_filter,all_cards))
     with open(direc + 'scryfall-filtered-cards-pickled.txt','wb') as f:
         pickle.dump(filtered_cards,f)
@@ -186,5 +185,5 @@ def get_most_predictive_features(m):
 def get_confusion_matrix(m):
     x = np.array(m.card_colors)
     y = np.array(m.unique_colors[m.predicted_color])
-    colors = sorted(np.unique(m.card_colors),key = lambda c: len(c))
+    colors = ['W','U','B','R','G']#sorted(np.unique(m.card_colors),key = lambda c: len(c))
     return colors,np.array([[np.sum((x==c1)*(y==c2))/np.sum(x==c1) for c1 in colors] for c2 in colors])
